@@ -48,8 +48,6 @@ class LogicStore:
 
     # Run through all available cards and determine if they still have any factors remaining
     for c in self._available_cards[:]:
-      factors = self._factors_of(c)
-      print(c,factors)
       if len(self._factors_of(c)) == 0:
         # Do not score them yet, but remove them from available
         self._available_cards.remove(c)
@@ -58,9 +56,6 @@ class LogicStore:
     max_card = max(self._remaining_cards) if len(self._remaining_cards) > 0 else 0
     for c in self._remaining_cards[:]:
       max_multiplier = max_card // c
-      factors = self._factors_of(c)
-      multiples = self._multiples_of(c,max_multiplier)
-      print(c,factors,multiples)
       factors_remaining = len(self._factors_of(c)) != 0
       multiples_remaining = len(self._multiples_of(c,max_multiplier)) != 0
       if not factors_remaining and not multiples_remaining:
