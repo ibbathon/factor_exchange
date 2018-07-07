@@ -17,7 +17,7 @@ class LogicStore:
     self._include_sink = include_sink
 
     # Other internal attributes
-    self._scores = [0 for i in range(self._num_players)]
+    self._scores = [0 for _ in range(self._num_players)]
     self._sink_score = 0
     self._remaining_cards = [i+1 for i in range(self._max_card_value)]
     self._available_cards = [i+1 for i in range(1,self._max_card_value)]
@@ -84,14 +84,25 @@ class LogicStore:
       self._available_cards.remove(value)
 
   def _distribute_factor_points (self, total_points):
-    # TODO: Implement correctly
-    self._sink_score += total_points
+    divisor = sum(self._distribution[1])
+    split_points = total_points / divisor
+    for i in range(len(self._distribution[0])):
+      pindex = self._distribution[0][i]
+      mult = self._distribution[1][i]
+      if pindex >= self._num_players and self._include_sink:
+        self._sink_score += split_points * mult
+      else:
+        pindex = (self._current_player+pindex) % self._num_players
+        self._scores[pindex] += split_points * mult
 
   def is_game_over (self):
     return len(self._remaining_cards) == 0
 
   def scores (self):
-    return self._scores[:]+[self._sink_score]
+    if self._include_sink:
+      return self._scores[:]+[self._sink_score]
+    else:
+      return self._scores[:]
 
   def cards (self):
     return [self._remaining_cards[:]]+[self._available_cards[:]]
