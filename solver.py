@@ -68,8 +68,13 @@ class RecursiveSolver:
     best_plays = [[] for _ in range(self.num_players)]
     current_play = []
     self.recursive_solve(copy.deepcopy(self.logicstore),current_play,best_scores,best_plays)
-    print(best_scores)
-    print(best_plays)
+    self.print_solution(best_scores,best_plays)
+
+  def print_solution (self, best_scores, best_plays):
+    if self.debug:
+      print()
+    print("Best scores: {}".format(", ".join([str(s) for s in best_scores])))
+    print("Best plays: {}".format("; ".join([str(s) for s in best_plays])))
 
   def recursive_solve (self, store, curr_play, best_scores, best_plays):
     # If the game is over, check if this game's scores are better than the best
