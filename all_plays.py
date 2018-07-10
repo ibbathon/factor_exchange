@@ -28,7 +28,7 @@ class RecursivePlayPrinter:
     if args.evengain:
       distribution = [
         [i+1 for i in range(args.numplayers-1)],
-        [1 for i in range(args.numplayers)-1]
+        [1 for i in range(args.numplayers-1)]
       ]
     else:
       distribution = [[1],[1]]
