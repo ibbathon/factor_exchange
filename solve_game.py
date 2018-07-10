@@ -1,15 +1,16 @@
-# Factor Exchange solver
+# Factor Exchange game solver
 #
 # Author: Ibb Marsh
-# Created: 2018-07-03
+# Created: 2018-07-10
 #
-# Description: Attempts all plays of a given Factor Exchange board and outputs the optimal plays
-#  for players, as well as expected score.
+# Description: Solves the game, as opposed to a player's choices during the game. This program
+# calculates all possible plays of a given Factor Exchange board and outputs the
+# "perfect play" choices that perfect-knowledge players would make, along with the final scores.
 
 import sys, argparse, copy
 import logic
 
-class RecursiveSolver:
+class GameSolver:
 
   DEFAULT_PARAMS = {
     'maxcardvalue': 10,
@@ -43,8 +44,10 @@ class RecursiveSolver:
     )
 
   def build_parser (self):
-    parser = argparse.ArgumentParser(description='Attempts all plays of a given Factor Exchange'+ \
-      ' board and outputs the optimal plays for players, as well as expected score.')
+    parser = argparse.ArgumentParser(description="Solves the game, as opposed to a player's"+ \
+      " choices during the game. This program calculates all possible plays of a given Factor"+ \
+      " Exchange board and outputs the 'perfect play' choices that perfect-knowledge players"+ \
+      " would make, along with the final scores.")
     parser.add_argument('-m','--maxcardvalue',default=self.DEFAULT_PARAMS['maxcardvalue'],type=int,
       help="Sets the number of cards in play on the board (default: {})".format(
         self.DEFAULT_PARAMS['maxcardvalue']))
@@ -63,51 +66,45 @@ class RecursiveSolver:
     return parser
 
   def run (self):
-    best_scores = [0 for _ in range(self.num_players)]
-    best_plays = [[] for _ in range(self.num_players)]
     current_play = []
-    self.recursive_solve(copy.deepcopy(self.logicstore),current_play,best_scores,best_plays)
-    self.print_solution(best_scores,best_plays)
-
-  def print_solution (self, best_scores, best_plays):
+    scores,solution = self.recursive_play(copy.deepcopy(self.logicstore),current_play)
     if self.debug:
       print()
-    print("Best scores: {}".format(", ".join([str(s) for s in best_scores])))
-    print("Best plays: {}".format("; ".join([str(s) for s in best_plays])))
+    print(scores)
+    print(solution)
+    winner = -1
+    best_score = 0
+    for i in range(len(scores)):
+      if scores[i] > best_score:
+        best_score = scores[i]
+        winner = i
+      elif scores[i] == best_score:
+        winner = -1
+    print("The winner is {}".format(winner))
 
-  def recursive_solve (self, store, curr_play, best_scores, best_plays):
-    # If the game is over, check if this game's scores are better than the best
+  def recursive_play (self, store, curr_play):
+    # If the game is over, return the score and an empty choice list
     if store.is_game_over():
       if self.debug:
         print("\r{}\r{}".format(" "*self.screen_width,str(curr_play)),end="")
-      game_scores = store.scores()
-      for i in range(self.num_players):
-        if game_scores[i] > best_scores[i]:
-          if self.debug:
-            print("\nNew best score: {}".format(game_scores[i]))
-          best_scores[i] = game_scores[i]
-          best_plays[i] = []
-        if game_scores[i] == best_scores[i]:
-          dup = False
-          for play in best_plays[i]:
-            if sorted(curr_play) == sorted(play):
-              dup = True
-              break
-          if not dup:
-            if self.debug:
-              print("\nNew best play")
-            best_plays[i].append(curr_play[:])
-      return
+      return store.scores(),[]
     # Otherwise, kick off the recursion of each possible play in turn
     poss_moves = store.cards()[1]
+    player = store.current_player()
+    best_scores = [0 for i in range(self.num_players)]
+    best_choices = None
     for move in poss_moves:
       newstore = copy.deepcopy(store)
       newstore.take_turn(move)
       curr_play.append(move)
-      self.recursive_solve(newstore,curr_play,best_scores,best_plays)
+      scores,choices = self.recursive_play(newstore,curr_play)
       curr_play.pop()
+      if scores[player] > best_scores[player]:
+        best_scores = scores
+        best_choices = [move]+choices
+    return best_scores,best_choices
 
 
 if __name__ == '__main__':
-  solv = RecursiveSolver(sys.argv)
-  solv.run()
+  gs = GameSolver(sys.argv)
+  gs.run()

@@ -106,3 +106,6 @@ class LogicStore:
 
   def cards (self):
     return [self._remaining_cards[:]]+[self._available_cards[:]]
+
+  def current_player (self):
+    return self._current_player
