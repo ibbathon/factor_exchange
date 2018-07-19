@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Factor Exchange solver
 #
 # Author: Ibb Marsh

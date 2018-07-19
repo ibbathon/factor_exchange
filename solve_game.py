@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Factor Exchange game solver
 #
 # Author: Ibb Marsh
